@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "canopy-ledger"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "pandas>=2.2", "numpy>=1.26", "requests>=2.32", "python-dotenv>=1.0",
+  "tabulate>=0.9", "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+explore = ["jupyterlab>=4.2", "duckdb>=1.1", "matplotlib>=3.9", "pyarrow>=17"]
+warehouse = ["dbt-core>=1.9,<2", "dbt-postgres>=1.9,<2"]
+dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3.8"]
+
+[project.scripts]
+ledger = "ledger.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

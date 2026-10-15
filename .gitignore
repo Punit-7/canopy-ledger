@@ -1,0 +1,16 @@
+# .gitignore
+.venv/
+__pycache__/
+*.egg-info/
+.env
+data/
+warehouse/target/
+warehouse/dbt_packages/
+warehouse/logs/
+logs/
+.ipynb_checkpoints/
+powerbi/**/.pbi/localSettings.json
+powerbi/**/.pbi/cache.abf
+*.pbix
+exports/
+*.twbx
