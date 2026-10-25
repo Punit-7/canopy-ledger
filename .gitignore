@@ -14,3 +14,4 @@ powerbi/**/.pbi/cache.abf
 *.pbix
 exports/
 *.twbx
+canopy-ledger-build-guide.html
