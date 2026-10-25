@@ -27,7 +27,10 @@ class PlainFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         fields = " ".join(f"{k}={v}" for k, v in getattr(record, "fields", {}).items())
         base = f"{time.strftime('%H:%M:%S')} {record.levelname:<7} {record.name}: {record.getMessage()}"
-        return f"{base} {fields}".rstrip()
+        line = f"{base} {fields}".rstrip()
+        if record.exc_info:
+            line += "\n" + self.formatException(record.exc_info)
+        return line
 
 
 def setup(level: str = "INFO", json_logs: bool = True) -> None:
