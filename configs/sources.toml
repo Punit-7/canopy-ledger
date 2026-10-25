@@ -1,0 +1,29 @@
+# configs/sources.toml
+# Which GFW tables to pull, and which version of each.
+# Pin every version. A scheduled job must never follow "latest" silently.
+country = "IND"
+api = "https://data-api.globalforestwatch.org"
+
+# Checks use these. Update them when you move to a newer data release.
+expect_max_loss_year = 2025
+canopy_threshold = 30
+
+[sources.tcl_change]
+dataset = "gadm__tcl__adm2_change"
+version = "v20260424"
+sql = "sql/extract/tcl_change.sql"
+
+[sources.tcl_summary]
+dataset = "gadm__tcl__adm2_summary"
+version = "v20260424"
+sql = "sql/extract/tcl_summary.sql"
+
+[sources.viirs_weekly]
+dataset = "gadm__viirs__adm2_weekly_alerts"
+version = "v20251202"
+sql = "sql/extract/viirs_weekly.sql"
+
+[sources.boundaries]
+dataset = "gadm_administrative_boundaries"
+version = "v4.1"
+sql = "sql/extract/boundaries.sql"
