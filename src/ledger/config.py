@@ -53,7 +53,7 @@ def load_settings(config: Path | None = None) -> Settings:
     return Settings(
         gfw_api_key=os.environ.get("GFW_API_KEY", ""),
         database_url=os.environ.get("DATABASE_URL", ""),
-        data_dir=Path(os.environ.get("DATA_DIR", ROOT / "data")),
+        data_dir=(ROOT / os.environ.get("DATA_DIR", "data")).resolve(),
         log_level=os.environ.get("LOG_LEVEL", "INFO"),
         log_json=os.environ.get("LOG_JSON", "true").lower() == "true",
         country=cfg["country"],
