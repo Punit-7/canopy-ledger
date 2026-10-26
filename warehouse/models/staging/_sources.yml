@@ -1,0 +1,18 @@
+# warehouse/models/staging/_sources.yml
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: Text copies of the GFW pulls, loaded by `ledger load`. Never edited by hand.
+    tables:
+      - name: tcl_change
+        description: Annual tree cover loss by district and dimension (gadm__tcl__adm2_change).
+      - name: tcl_summary
+        description: Tree cover extent and area by district and dimension (gadm__tcl__adm2_summary).
+      - name: viirs_weekly
+        description: VIIRS fire alert counts by district and ISO week (gadm__viirs__adm2_weekly_alerts).
+      - name: boundaries
+        description: GADM 4.1 names for India (gadm_administrative_boundaries).
+      - name: _loads
+        description: One row per loaded file, with dataset version and checksum.

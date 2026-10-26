@@ -1,0 +1,29 @@
+# warehouse/seeds/_seeds.yml
+version: 2
+
+seeds:
+  - name: driver_categories
+    description: >
+      Maps the driver strings found in the GFW data (Phase 7) to the seven published classes,
+      plus how the Global Forest Review treats each one. driver_raw must match the data exactly
+      (it is "Settlements & Infrastructure" in v20260424).
+    columns:
+      - name: driver_raw
+        tests: [unique, not_null]
+      - name: counts_as_deforestation
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["always", "in primary forest only", "never"]
+
+  - name: isfr_2023_states
+    description: >
+      State forest cover from the India State of Forest Report 2023 (Forest Survey of India),
+      typed in from the report tables. gadm_state is the matching GADM name.
+    config:
+      column_types:
+        state_isfr: text
+        gadm_state: text
+        geographic_area_km2: numeric
+        forest_cover_2021_km2: numeric
+        forest_cover_2023_km2: numeric

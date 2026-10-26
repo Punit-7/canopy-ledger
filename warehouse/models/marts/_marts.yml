@@ -1,0 +1,64 @@
+# warehouse/models/marts/_marts.yml
+version: 2
+
+models:
+  - name: dim_district
+    description: One row per GADM 4.1 district in India, with 2000/2010 tree cover at the canopy threshold.
+    columns:
+      - name: district_id
+        description: adm1 * 1000 + adm2. Stable within one GADM version.
+        tests: [unique, not_null]
+      - name: state
+        tests: [not_null]
+      - name: district
+        tests: [not_null]
+
+  - name: dim_year
+    columns:
+      - name: year
+        tests: [unique, not_null]
+
+  - name: dim_driver
+    columns:
+      - name: driver_id
+        tests: [unique, not_null]
+      - name: driver_raw
+        tests: [unique, not_null]
+
+  - name: fct_tree_cover_loss
+    description: Annual tree cover loss at var('canopy_threshold') percent canopy cover.
+    columns:
+      - name: district_id
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_district'), field: district_id}
+      - name: year
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_year'), field: year}
+      - name: driver_id
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_driver'), field: driver_id}
+      - name: loss_ha
+        tests: [not_null]
+
+  - name: fct_fire_alerts
+    columns:
+      - name: district_id
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_district'), field: district_id}
+              config: {severity: warn}
+      - name: confidence
+        tests:
+          - accepted_values:
+              arguments: {values: ["h", "n", "l"]}
+              config: {severity: warn}
+
+  - name: mart_state_gfw_vs_isfr
+    description: GFW tree cover vs ISFR forest cover by state. Different definitions; read Phase 9.7.

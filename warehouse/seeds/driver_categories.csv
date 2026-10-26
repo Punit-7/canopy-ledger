@@ -1,0 +1,9 @@
+driver_raw,driver,driver_group,counts_as_deforestation,sort_order
+Permanent agriculture,Permanent agriculture,Long-term land use change,always,1
+Hard commodities,Hard commodities,Long-term land use change,always,2
+Settlements & Infrastructure,Settlements and infrastructure,Long-term land use change,always,3
+Shifting cultivation,Shifting cultivation,Rotational,in primary forest only,4
+Logging,Logging,Temporary,never,5
+Wildfire,Wildfire,Temporary,never,6
+Other natural disturbances,Other natural disturbances,Temporary,never,7
+Unknown,Unknown,Unknown,never,8

@@ -1,0 +1,33 @@
+name: canopy_ledger
+version: "1.0.0"
+config-version: 2
+profile: canopy_ledger
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  canopy_threshold: 30      # % canopy cover in 2000 that counts as "tree cover"
+  viirs_threshold: 30       # set from what you found in Phase 7
+  first_loss_year: 2001
+  last_loss_year: 2025      # bump when you move to a newer GFW release
+
+models:
+  canopy_ledger:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+
+seeds:
+  canopy_ledger:
+    +schema: ref
