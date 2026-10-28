@@ -5,7 +5,7 @@ services:
       POSTGRES_USER: ledger
       POSTGRES_PASSWORD: ledger
       POSTGRES_DB: ledger
-    ports: ["5433:5432"]  # 5432 is taken by the native Windows PostgreSQL 18 service
+    ports: ["5435:5432"]  # 5432 is native PostgreSQL 18; 5433 and 5434 are taken by other containers
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ledger"]

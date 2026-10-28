@@ -1,0 +1,15 @@
+{
+  "name": "Canopy Ledger",
+  "dataColors": ["#2f6b4f", "#b07a3c", "#7d9c8a", "#c9a35b", "#5a4e6e", "#9a5b4c", "#8a8f86", "#3e5c76"],
+  "background": "#FFFFFF",
+  "foreground": "#1d2a24",
+  "tableAccent": "#2f6b4f",
+  "good": "#2f6b4f",
+  "neutral": "#c9a35b",
+  "bad": "#9a5b4c",
+  "textClasses": {
+    "title": {"fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#1d2a24"},
+    "label": {"fontFace": "Segoe UI", "fontSize": 10, "color": "#3b4a43"},
+    "callout": {"fontFace": "Segoe UI Semibold", "fontSize": 26, "color": "#1d2a24"}
+  }
+}

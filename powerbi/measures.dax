@@ -1,0 +1,110 @@
+// powerbi/measures.dax
+// Every measure in the report. Add each one to the _Measures table (Home > New measure) and put it in
+// the display folder named in its section header (Properties pane > Display folder).
+// Power BI cannot import this file; it is the source of truth to copy from and to review in git.
+
+// ── Loss ───────────────────────────────────────────────────  folder: Loss
+Loss (ha) = SUM ( fct_tree_cover_loss[loss_ha] )
+
+Loss (kha) = DIVIDE ( [Loss (ha)], 1000 )
+
+Primary forest loss (ha) =
+CALCULATE ( [Loss (ha)], fct_tree_cover_loss[is_primary_forest] = TRUE () )
+
+Deforestation (ha) =
+CALCULATE ( [Loss (ha)], fct_tree_cover_loss[is_deforestation] = TRUE () )
+
+Deforestation share % = DIVIDE ( [Deforestation (ha)], [Loss (ha)] )
+
+Fire loss (ha) = SUM ( fct_tree_cover_loss[fire_loss_ha] )
+
+Fire share % = DIVIDE ( [Fire loss (ha)], [Loss (ha)] )
+
+Emissions (Mt CO2e) = DIVIDE ( SUM ( fct_tree_cover_loss[emissions_t_co2e] ), 1e6 )
+
+
+// ── Rates and shares ───────────────────────────────────────  folder: Rates
+Tree cover 2000 (ha) = SUM ( dim_district[tree_cover_2000_ha] )
+
+// Loss as a share of the tree cover each district had in 2000.
+// The denominator ignores driver/primary/protected filters on purpose: it is always all tree cover.
+Loss rate % = DIVIDE ( [Loss (ha)], [Tree cover 2000 (ha)] )
+
+Share of national loss % =
+DIVIDE ( [Loss (ha)], CALCULATE ( [Loss (ha)], REMOVEFILTERS ( dim_district ) ) )
+
+
+// ── Time ───────────────────────────────────────────────────  folder: Time
+// Trailing average: the value for 2025 uses 2023–2025 only, never future years.
+Loss 3-yr avg (ha) =
+VAR y = MAX ( dim_year[year] )
+RETURN
+    CALCULATE (
+        AVERAGEX ( VALUES ( dim_year[year] ), [Loss (ha)] ),
+        REMOVEFILTERS ( dim_year ),
+        dim_year[year] >= y - 2 && dim_year[year] <= y
+    )
+
+Loss previous year (ha) =
+VAR y = MAX ( dim_year[year] )
+RETURN CALCULATE ( [Loss (ha)], REMOVEFILTERS ( dim_year ), dim_year[year] = y - 1 )
+
+Loss YoY % =
+IF (
+    HASONEVALUE ( dim_year[year] ),
+    DIVIDE ( [Loss (ha)] - [Loss previous year (ha)], [Loss previous year (ha)] )
+)
+
+// The newest year in the data, whatever the year slicer says. For the Overview cards.
+Loss last year (ha) =
+VAR ly = CALCULATE ( MAX ( dim_year[year] ), REMOVEFILTERS ( dim_year ) )
+RETURN CALCULATE ( [Loss (ha)], REMOVEFILTERS ( dim_year ), dim_year[year] = ly )
+
+Loss YoY % last year =
+VAR ly = CALCULATE ( MAX ( dim_year[year] ), REMOVEFILTERS ( dim_year ) )
+VAR cur = CALCULATE ( [Loss (ha)], REMOVEFILTERS ( dim_year ), dim_year[year] = ly )
+VAR prev = CALCULATE ( [Loss (ha)], REMOVEFILTERS ( dim_year ), dim_year[year] = ly - 1 )
+RETURN DIVIDE ( cur - prev, prev )
+
+// Shown under the trend chart when the selected years span more than one method era.
+Method era warning =
+VAR eras = DISTINCTCOUNT ( dim_year[method_era] )
+RETURN
+    IF ( eras > 1, "The selected years cross a change in the UMD method (2011, 2015). "
+        & "Compare years within one era." , "" )
+
+
+// ── Ranking ────────────────────────────────────────────────  folder: Ranking
+District rank =
+IF (
+    ISINSCOPE ( dim_district[state_district] ),
+    RANKX ( ALLSELECTED ( dim_district[state_district] ), [Loss (ha)], , DESC, DENSE )
+)
+
+// Running share of loss, largest district first. Removes only the district filter (and any
+// Top N filter on it), so a state or year slicer still applies.
+Cumulative share % =
+VAR cur = [Loss (ha)]
+VAR t =
+    ADDCOLUMNS (
+        CALCULATETABLE (
+            VALUES ( dim_district[state_district] ),
+            REMOVEFILTERS ( dim_district[state_district] )
+        ),
+        "@loss", [Loss (ha)]
+    )
+RETURN DIVIDE ( SUMX ( FILTER ( t, [@loss] >= cur ), [@loss] ), SUMX ( t, [@loss] ) )
+
+
+// ── Fire alerts ────────────────────────────────────────────  folder: Fire
+Fire alerts = SUM ( fct_fire_alerts[alerts] )
+
+High-confidence alerts = CALCULATE ( [Fire alerts], fct_fire_alerts[confidence] = "h" )
+
+
+// ── About ──────────────────────────────────────────────────  folder: About
+Data version =
+"GFW " & MAXX ( FILTER ( meta_data_versions, meta_data_versions[source] = "tcl_change" ),
+                meta_data_versions[version] )
+    & " · loaded " & FORMAT ( MAX ( meta_data_versions[loaded_at] ), "d mmm yyyy" )
+    & " · 30% canopy · GADM 4.1 districts"
