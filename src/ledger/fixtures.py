@@ -17,7 +17,7 @@ DRIVERS = [
     "Shifting cultivation",
     "Logging",
     "Wildfire",
-    "Settlements and infrastructure",
+    "Settlements & Infrastructure",
     "Other natural disturbances",
 ]
 DISTRICTS = [

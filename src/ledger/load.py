@@ -35,7 +35,8 @@ def load_csv(conn: psycopg.Connection, table: str, path: Path) -> int:
     cols = [c.strip().lower() for c in header]
     ident = sql.Identifier("raw", table)
     with conn.cursor() as cur:
-        cur.execute(sql.SQL("drop table if exists {}").format(ident))
+        # cascade: dbt's staging views depend on these tables; dbt rebuilds them right after the load
+        cur.execute(sql.SQL("drop table if exists {} cascade").format(ident))
         cur.execute(
             sql.SQL("create table {} ({})").format(
                 ident, sql.SQL(", ").join(sql.SQL("{} text").format(sql.Identifier(c)) for c in cols)
