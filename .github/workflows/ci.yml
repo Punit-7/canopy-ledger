@@ -1,0 +1,36 @@
+# .github/workflows/ci.yml
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: {POSTGRES_USER: ledger, POSTGRES_PASSWORD: ledger, POSTGRES_DB: ledger}
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ledger" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ledger:ledger@localhost:5432/ledger
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: ledger
+      PGPASSWORD: ledger
+      PGDATABASE: ledger
+      LOG_JSON: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -e ".[dev,warehouse]"
+      - run: ruff check . && ruff format --check .
+      - run: pytest -q
+      # The whole pipeline on synthetic data: fixtures -> checks -> load -> dbt build (models + tests)
+      - run: ledger fixtures
+      - run: ledger checks
+      - run: ledger load
+      - run: dbt build --project-dir warehouse --profiles-dir warehouse

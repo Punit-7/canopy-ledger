@@ -93,15 +93,6 @@ def cmd_load(s, args) -> int:
     return 0
 
 
-def cmd_export(s, args) -> int:
-    from pathlib import Path
-
-    from ledger.export import export_csv
-
-    export_csv(s, Path(args.out))
-    return 0
-
-
 def cmd_fixtures(s, args) -> int:
     from ledger.fixtures import install
 
@@ -133,8 +124,6 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--reference-ha", type=float, help="national loss from the GFW dashboard")
     ld = sub.add_parser("load", help="load raw CSVs into PostgreSQL")
     ld.add_argument("--only", nargs="*")
-    ex = sub.add_parser("export", help="write the marts to CSV for Tableau")
-    ex.add_argument("--out", default="exports/tableau")
     sub.add_parser("fixtures", help="write synthetic raw files (tests and CI only)")
 
     args = p.parse_args(argv)

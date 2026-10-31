@@ -1,0 +1,45 @@
+# .github/workflows/refresh.yml
+name: refresh
+on:
+  schedule:
+    - cron: "17 3 1 * *"       # 03:17 UTC on the 1st of every month (08:47 IST)
+  workflow_dispatch:
+concurrency: {group: refresh, cancel-in-progress: false}
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: prod
+    env:
+      GFW_API_KEY: ${{ secrets.GFW_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PGHOST: ${{ secrets.PGHOST }}
+      PGUSER: ${{ secrets.PGUSER }}
+      PGPASSWORD: ${{ secrets.PGPASSWORD }}
+      PGDATABASE: ${{ secrets.PGDATABASE }}
+      EXTRACT_THRESHOLDS: "30"     # production keeps one threshold to fit the free database
+      LOG_JSON: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -e ".[warehouse]"
+      - name: Warn if GFW published newer versions than the pinned ones
+        run: ledger check-versions
+      - name: Extract pinned versions
+        run: ledger extract --force
+      - name: Raw data checks (stop here if the data is wrong)
+        run: ledger checks
+      - name: Load into Neon
+        run: ledger load
+      - name: Build and test models
+        run: dbt build --project-dir warehouse --profiles-dir warehouse --target prod
+      - name: Keep the manifest and dbt results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-${{ github.run_id }}
+          path: |
+            data/raw/manifest.json
+            warehouse/target/run_results.json
+          retention-days: 90

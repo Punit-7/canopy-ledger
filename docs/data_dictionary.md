@@ -1,5 +1,15 @@
 # docs/data_dictionary.md
 
+## Contract
+
+- Grain of `fct_tree_cover_loss`: district x year x driver x primary x protected x plantation, 30% canopy.
+- Refresh: monthly; data changes at most once a year (GFW annual release) plus corrections.
+- Years: 2001 to the latest complete GFW year. The latest year is provisional.
+- Districts: GADM 4.1. Not the current official district list.
+- Breaking changes (threshold, GADM version, driver classes) need a decision log entry and a README note.
+
+## Source fields
+
 | Field | Meaning | Notes |
 |---|---|---|
 | iso, adm1, adm2 | Country code, state code, district code (GADM integer ids) | Codes, not names. Names come from the boundaries table |

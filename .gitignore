@@ -12,6 +12,8 @@ logs/
 powerbi/**/.pbi/localSettings.json
 powerbi/**/.pbi/cache.abf
 *.pbix
-exports/
 *.twbx
 canopy-ledger-build-guide.html
+.neon
+node_modules/
+.claude/
